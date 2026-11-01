@@ -1,0 +1,251 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --color-canvas-base: #F8FAFC;
+  --color-canvas-blue: #EFF6FF;
+  --color-canvas-mint: #ECFDF5;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-border-subtle: rgba(226, 232, 240, 0.8);
+  --color-emerald-accent: #059669;
+  --color-sky-accent: #0284C7;
+  --color-cyan-accent: #0891B2;
+  --color-amber-accent: #D97706;
+  --color-red-accent: #DC2626;
+  --color-violet-accent: #7C3AED;
+}
+
+:root {
+  --canvas-base: #F8FAFC;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --emerald-accent: #059669;
+  --sky-accent: #0284C7;
+  --cyan-accent: #0891B2;
+  --amber-accent: #D97706;
+  --red-accent: #DC2626;
+}
+
+html,
+body {
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Premium frosted glass panel (80-90% white opacity with backdrop blur) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.glass-control {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+/* Heatwave warning glass card */
+.glass-heatwave {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.92) 0%, rgba(255, 237, 213, 0.88) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(253, 230, 138, 0.9);
+  box-shadow: 0 8px 28px rgba(217, 119, 6, 0.12);
+}
+
+/* Leaflet Container & Glass Controls */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0 !important;
+  font-family: inherit;
+  background-color: #F8FAFC !important;
+}
+
+/* Leaflet Custom Glassmorphism Popups */
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.14) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: inherit !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Leaflet Bottom-Right Controls & Attribution */
+.leaflet-bottom.leaflet-right {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  z-index: 1000 !important;
+}
+
+.leaflet-bottom.leaflet-right .leaflet-control-zoom {
+  margin-right: 14px !important;
+  margin-bottom: 10px !important;
+  pointer-events: auto !important;
+  float: none !important;
+}
+
+.leaflet-bar,
+.leaflet-touch .leaflet-bar {
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12) !important;
+  pointer-events: auto !important;
+}
+
+.leaflet-bar a,
+.leaflet-touch .leaflet-bar a {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  color: #0F172A !important;
+  border: none !important;
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  pointer-events: auto !important;
+}
+
+.leaflet-control-zoom-in *,
+.leaflet-control-zoom-out *,
+.leaflet-bar a *,
+.leaflet-touch .leaflet-bar a * {
+  pointer-events: none !important;
+}
+
+.leaflet-bar a:first-child,
+.leaflet-touch .leaflet-bar a:first-child {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
+}
+
+.leaflet-bar a:last-child,
+.leaflet-touch .leaflet-bar a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-bar a:hover,
+.leaflet-touch .leaflet-bar a:hover {
+  background-color: #ECFDF5 !important;
+  color: #059669 !important;
+}
+
+/* Map Attribution Customization */
+.leaflet-bottom.leaflet-right .leaflet-control-attribution {
+  margin: 0 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  color: #64748B !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  padding: 3px 10px !important;
+  border-top-left-radius: 8px !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-left: 1px solid rgba(226, 232, 240, 0.85) !important;
+  pointer-events: auto !important;
+  float: none !important;
+}
+
+.leaflet-bottom.leaflet-right .leaflet-control-attribution a {
+  color: #059669 !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+}
+
+.leaflet-bottom.leaflet-right .leaflet-control-attribution a:hover {
+  text-decoration: underline !important;
+}
+
+/* Clean light scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Professional Print Stylesheet for Report PDF Export */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-card {
+    box-shadow: none !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
