@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.air_quality import router as air_quality_router
+from app.climate_risk import router as climate_risk_router
+from app.forecast import router as forecast_router
+from app.historical import router as historical_router
 from app.weather import router as weather_router
 
 app = FastAPI(
@@ -21,6 +24,9 @@ app.add_middleware(
 
 app.include_router(weather_router)
 app.include_router(air_quality_router)
+app.include_router(climate_risk_router)
+app.include_router(historical_router)
+app.include_router(forecast_router)
 
 
 @app.get("/health")
