@@ -1,102 +1,94 @@
-# Vercel Services Deployment Guide: ClimateScope
+# Deployment Guide: ClimateScope (Two Vercel Projects)
 
-This repository is configured for **Vercel Services**, Vercel's official multi-framework monorepo architecture:
-- **`frontend/`**: Next.js 16 (React 19, Tailwind CSS v4, Leaflet geospatial mapping, Recharts dashboards).
-- **`backend/`**: FastAPI Python application with modular routers for weather, air quality, climate risk, forecast, and historical climate analytics.
+This repository is configured to deploy as **Two Independent Projects on Vercel** from the same GitHub repository:
+1. **Project 1 — Frontend**: Next.js 16 (React 19, Tailwind CSS v4, Leaflet maps, Recharts).
+2. **Project 2 — Backend**: FastAPI Python application using Vercel's official Python Serverless runtime.
 
----
-
-## 1. How Vercel Services Works in this Monorepo
-
-The root [`vercel.json`](./vercel.json) defines both services and their routing rules:
-
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "frontend": {
-      "root": "frontend/",
-      "framework": "nextjs"
-    },
-    "backend": {
-      "root": "backend/",
-      "framework": "fastapi",
-      "entrypoint": "app.main:app"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/geocode",
-      "destination": { "service": "frontend" }
-    },
-    {
-      "source": "/health",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/api/weather/:path*",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/api/air-quality/:path*",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/api/climate-risk/:path*",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/api/historical/:path*",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/api/forecast/:path*",
-      "destination": { "service": "backend" }
-    },
-    {
-      "source": "/(.*)",
-      "destination": { "service": "frontend" }
-    }
-  ]
-}
+```mermaid
+flowchart LR
+    Browser["User Browser"] -->|same-origin| Frontend["Project 1: Frontend on Vercel<br/>(Root Directory: frontend/)"]
+    Frontend -- "/api/geocode" --> Geocode["Next.js Route Handler<br/>(Internal)"]
+    Frontend -- "/api/weather, /health..." --> Backend["Project 2: Backend on Vercel<br/>(Root Directory: backend/)"]
 ```
 
-### Why this is the best supported architecture:
-1. **No Root Shims**: Eliminates artificial files like `api/index.py`, root `package.json`, or duplicate root `requirements.txt`.
-2. **Native Framework Support**: Vercel handles `frontend/` as a native Next.js project and `backend/` as a native FastAPI ASGI application.
-3. **Sequential Evaluation**: `/api/geocode` is evaluated first and forwarded directly to Next.js (`frontend/app/api/geocode/route.ts`). All domain API routes are forwarded to FastAPI, and all web pages go to Next.js.
-4. **Unified Deployment**: Both services deploy atomically in one deployment, share custom domains, and communicate with zero cross-origin (CORS) overhead.
-
 ---
 
-## 2. Vercel Dashboard Settings
+## 1. Project 2 — Backend Deployment (Deploy First)
 
-When importing the project into Vercel:
+Deploy the backend first so you have its production URL ready for the frontend.
 
-| Setting | Value | Notes |
+### Vercel Dashboard Settings:
+1. Go to **[vercel.com/new](https://vercel.com/new)** and import `mobin-25/CodeStorm-Climate-Intelligence`.
+2. **Project Name**: `climatescope-backend` *(or your preference)*.
+3. **Root Directory**: Click **Edit** and select **`backend`**.
+4. **Framework Preset**: Auto-detected as **Other / Python**.
+5. **Build and Output Settings**: Leave as default.
+
+### Environment Variables for Project 2:
+Add under **Project Settings ➔ Environment Variables**:
+
+| Variable | Value | Purpose |
 | :--- | :--- | :--- |
-| **Project Name** | `codespace-climatescope` *(or your preference)* | Unique project identifier |
-| **Root Directory** | `./` *(Leave as repository root)* | Vercel Services will automatically navigate to `frontend/` and `backend/` as configured in `vercel.json` |
-| **Framework Preset** | *Auto-detected from `vercel.json`* | No manual overrides needed |
+| `ARCHIVE_REQUEST_TIMEOUT_SECONDS` | `10.0` | Server-side timeout guard protecting against upstream Open-Meteo latency under Vercel Hobby execution limits |
+| `HISTORICAL_REQUEST_TIMEOUT_SECONDS` | `10.0` | Upstream provider timeout guard |
+| `CPCB_API_KEY` | *(Optional secret)* | Secret key for CPCB / CAAQMS data feeds. Kept strictly server-side |
+
+### Click Deploy
+Vercel packages [`backend/index.py`](./backend/index.py) using dependencies from [`backend/requirements.txt`](./backend/requirements.txt).
+Once deployed, copy your backend URL:
+`https://climatescope-backend.vercel.app` (or your assigned domain).
 
 ---
 
-## 3. Environment Variables Configuration
+## 2. Project 1 — Frontend Deployment (Deploy Second)
 
-Set these under **Project Settings ➔ Environment Variables** in the Vercel Dashboard:
+### Vercel Dashboard Settings:
+1. Go to **[vercel.com/new](https://vercel.com/new)** and import the same repository `mobin-25/CodeStorm-Climate-Intelligence`.
+2. **Project Name**: `climatescope-frontend` *(or your preference)*.
+3. **Root Directory**: Click **Edit** and select **`frontend`**.
+4. **Framework Preset**: Auto-detected as **Next.js** (zero configuration mismatch).
+5. **Build and Output Settings**: Leave as default (`next build`, `.next`).
 
-| Variable | Environment | Recommended Value | Purpose |
-| :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_USE_REAL_BACKEND` | Production, Preview | `true` | Tells the frontend to query the live FastAPI backend instead of fallback sample corridors |
-| `ARCHIVE_REQUEST_TIMEOUT_SECONDS` | Production, Preview | `10.0` | Guards against upstream Open-Meteo archive latency on Vercel 10s–15s function execution limits |
-| `HISTORICAL_REQUEST_TIMEOUT_SECONDS` | Production, Preview | `10.0` | Guards against historical provider timeouts |
-| `CPCB_API_KEY` | Production, Preview | *(Optional)* | Secret key for Central Pollution Control Board / CAAQMS. Kept strictly server-side (no `NEXT_PUBLIC_` prefix) |
+### Environment Variables for Project 1:
+Add under **Project Settings ➔ Environment Variables**:
+
+| Variable | Value | Purpose |
+| :--- | :--- | :--- |
+| `BACKEND_URL` | `https://climatescope-backend.vercel.app` | URL of your deployed Project 2 backend. Next.js server-side rewrites proxy API calls to this address |
+| `NEXT_PUBLIC_USE_REAL_BACKEND` | `true` | Instructs the UI to fetch live data from the backend rather than using fallback sample corridors |
+
+### Click Deploy
+Vercel compiles the Next.js frontend with Turbopack and static generation.
+Once deployed, your live application will be available at:
+`https://climatescope-frontend.vercel.app`
+
+---
+
+## 3. How API Routing Works
+
+All browser traffic stays **strictly same-origin** on the frontend domain:
+
+| Request URL from Browser | Handler | Execution Type |
+| :--- | :--- | :--- |
+| `GET /` | Next.js Page | Static / Edge |
+| `GET /compare` | Next.js Page | Static / Client |
+| `GET /insights` | Next.js Page | Static / Client |
+| `GET /reports` | Next.js Page | Static / Client |
+| `GET /api/geocode?q=...` | Next.js Route Handler ([`frontend/app/api/geocode/route.ts`](./frontend/app/api/geocode/route.ts)) | Handled directly by Frontend (never sent to Backend) |
+| `GET /health` | Next.js Rewrite ➔ Backend (`/health`) | Proxied server-side to Project 2 |
+| `GET /api/weather/*` | Next.js Rewrite ➔ Backend (`/api/weather/*`) | Proxied server-side to Project 2 |
+| `GET /api/air-quality/*` | Next.js Rewrite ➔ Backend (`/api/air-quality/*`) | Proxied server-side to Project 2 |
+| `GET /api/climate-risk/*` | Next.js Rewrite ➔ Backend (`/api/climate-risk/*`) | Proxied server-side to Project 2 |
+| `GET /api/historical/*` | Next.js Rewrite ➔ Backend (`/api/historical/*`) | Proxied server-side to Project 2 |
+| `GET /api/forecast/*` | Next.js Rewrite ➔ Backend (`/api/forecast/*`) | Proxied server-side to Project 2 |
 
 ---
 
 ## 4. Local Development
 
-### Run Backend (FastAPI):
+Running locally is unchanged:
+
+### Terminal 1 — Backend (FastAPI):
 ```bash
 cd backend
 python -m venv .venv
@@ -105,9 +97,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Run Frontend (Next.js):
+### Terminal 2 — Frontend (Next.js):
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+Next.js rewrites automatically route `/api/weather/*` etc. to `http://localhost:8000` when `BACKEND_URL` is omitted.
