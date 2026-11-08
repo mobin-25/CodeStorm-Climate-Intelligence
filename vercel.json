@@ -1,0 +1,32 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/weather/:path*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/air-quality/:path*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/climate-risk/:path*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/historical/:path*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/forecast/:path*",
+      "destination": "/api/index.py"
+    }
+  ]
+}
+

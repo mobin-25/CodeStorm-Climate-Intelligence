@@ -7,21 +7,23 @@ A full-stack, enterprise-grade climate intelligence platform providing real-time
 ## Architecture Overview
 
 - **Frontend (`/frontend`)**: Next.js 16 (App Router), React 19, Tailwind CSS v4, Leaflet interactive geospatial maps, and Recharts analytics dashboards.
-- **Backend (`/backend`)**: Python FastAPI application exposing modular endpoints for weather, air quality, climate risk, and historical forecasts with CORS support for production environments.
+- **Backend (`/backend`)**: Python FastAPI application exposing modular endpoints for weather, air quality, climate risk, and historical forecasts.
+- **Unified Serverless Bridge (`/api/index.py`)**: ASGI entrypoint allowing the FastAPI application to run natively as a Vercel Python Serverless Function alongside Next.js.
 
 ---
 
 ## Live Deployment on Vercel
 
-The frontend is ready for immediate deployment on Vercel:
+The application is pre-configured for **unified deployment on Vercel** where both the Next.js frontend and FastAPI backend run under the same domain:
 
 1. Import `mobin-25/CodeStorm-Climate-Intelligence` on [Vercel](https://vercel.com/new).
-2. Set **Root Directory** to `frontend`.
-3. Set environment variable:
-   - `NEXT_PUBLIC_USE_REAL_BACKEND=false` (for standalone preview with built-in corridor data) or `true` when pointing to a deployed backend.
-4. Click **Deploy**.
+2. Leave **Root Directory** as `./` (default repository root).
+3. Vercel automatically runs the build command and configures Python serverless routing from `vercel.json`.
+4. (Optional) In Vercel Environment Variables, add:
+   - `NEXT_PUBLIC_USE_REAL_BACKEND=true`
+5. Click **Deploy**.
 
-For complete instructions on deploying both the Next.js frontend to Vercel and the FastAPI backend to Render / Railway, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+For detailed architecture, routing tables, and timeout configurations, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ---
 

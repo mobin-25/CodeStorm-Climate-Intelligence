@@ -5,6 +5,7 @@ from email.utils import parsedate_to_datetime
 from datetime import date, datetime, timedelta, timezone
 import json
 import math
+import os
 from statistics import mean
 import time
 from typing import Annotated, Any, Literal
@@ -20,7 +21,8 @@ router = APIRouter(prefix="/api/historical", tags=["historical"])
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
-REQUEST_TIMEOUT = httpx.Timeout(60.0, connect=5.0)
+_HISTORICAL_TIMEOUT_SEC = float(os.getenv("HISTORICAL_REQUEST_TIMEOUT_SECONDS", "60.0"))
+REQUEST_TIMEOUT = httpx.Timeout(_HISTORICAL_TIMEOUT_SEC, connect=5.0)
 PROVIDER_MAX_ATTEMPTS = 3
 RETRY_BASE_SECONDS = 0.5
 RETRY_MAX_SECONDS = 8.0

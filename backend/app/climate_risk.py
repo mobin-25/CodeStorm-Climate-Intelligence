@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import date, datetime, timedelta, timezone
 import math
+import os
 import time
 from typing import Annotated, Any, Literal
 
@@ -19,7 +20,8 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 FLOOD_URL = "https://flood-api.open-meteo.com/v1/flood"
 REQUEST_TIMEOUT = httpx.Timeout(20.0, connect=5.0)
-ARCHIVE_REQUEST_TIMEOUT = httpx.Timeout(90.0, connect=5.0)
+_ARCHIVE_TIMEOUT_SEC = float(os.getenv("ARCHIVE_REQUEST_TIMEOUT_SECONDS", "90.0"))
+ARCHIVE_REQUEST_TIMEOUT = httpx.Timeout(_ARCHIVE_TIMEOUT_SEC, connect=5.0)
 ARCHIVE_CACHE_TTL_SECONDS = 12 * 60 * 60
 ARCHIVE_CACHE_MAX_ENTRIES = 8
 HISTORY_YEARS = 30
